@@ -3,6 +3,13 @@
 A **production-quality** internship project implementing **AI microservices** with **FastAPI**, **LangChain**, and **FAISS**. The system exposes REST APIs for text summarization, document question answering, and dynamic learning path generation.
 
 ---
+## Our Solution 
+
+![Summarize](summery.png)
+![QA Documents](documentqa.png)
+![Learning path](learningpath.png)
+
+
 
 ## Table of Contents
 
