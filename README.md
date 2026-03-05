@@ -35,42 +35,9 @@ The codebase follows **clean architecture**: routes handle HTTP, services contai
 
 ---
 
-## Architecture
+## System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              FastAPI Application                              │
-│                                   (main.py)                                  │
-└─────────────────────────────────────────────────────────────────────────────┘
-                    │                    │                    │
-                    ▼                    ▼                    ▼
-        ┌───────────────┐    ┌───────────────┐    ┌───────────────┐
-        │ summarizer_   │    │ document_     │    │ learning_     │
-        │ routes.py     │    │ routes.py     │    │ routes.py     │
-        └───────┬───────┘    └───────┬───────┘    └───────┬───────┘
-                │                    │                    │
-                ▼                    ▼                    ▼
-        ┌───────────────┐    ┌───────────────┐    ┌───────────────┐
-        │ summarizer_   │    │ document_qa_  │    │ learning_path_│
-        │ service.py    │    │ service.py    │    │ service.py    │
-        └───────┬───────┘    └───────┬───────┘    └───────┬───────┘
-                │                    │  PyPDFLoader       │
-                │                    │  RecursiveSplitter │
-                │                    │  FAISS + Embeddings│
-                │                    │  RetrievalQA       │
-                ▼                    ▼                    ▼
-        ┌─────────────────────────────────────────────────────────────┐
-        │                     ai_service.py (get_llm)                   │
-        │              OpenAI / OpenRouter / Ollama                     │
-        └─────────────────────────────────────────────────────────────┘
-                                        │
-                ┌───────────────────────┼───────────────────────┐
-                ▼                       ▼                       ▼
-        ┌───────────────┐    ┌───────────────────┐    ┌───────────────┐
-        │ prompt_       │    │ embeddings.py      │    │ config.py     │
-        │ templates.py  │    │ (OpenAI / Ollama)  │    │ (Settings)    │
-        └───────────────┘    └───────────────────┘    └───────────────┘
-```
+![Architecture](architecture-diagram.png)
 
 **Separation of concerns:**
 
