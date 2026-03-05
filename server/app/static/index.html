@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Learning Assistant</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #0f1419;
+      color: #e6edf3;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+    .subtitle {
+      color: #8b949e;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #21262d;
+      padding-bottom: 0.5rem;
+    }
+    .tab {
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: none;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 0.95rem;
+      border-radius: 6px;
+    }
+    .tab:hover { color: #e6edf3; background: #21262d; }
+    .tab.active { color: #58a6ff; background: #161b22; }
+    .panel {
+      display: none;
+      animation: fade 0.2s ease;
+    }
+    .panel.active { display: block; }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+    .card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .card label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: #c9d1d9;
+    }
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      color: #e6edf3;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    input[type="file"] {
+      margin-top: 0.25rem;
+      color: #8b949e;
+      font-size: 0.9rem;
+    }
+    .btn {
+      padding: 0.6rem 1.25rem;
+      background: #238636;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 0.75rem;
+    }
+    .btn:hover { background: #2ea043; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .result {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.9rem;
+    }
+    .result.empty { display: none; }
+    .error { color: #f85149; }
+    .phase { margin-bottom: 1rem; }
+    .phase h4 { color: #58a6ff; font-size: 0.9rem; margin-bottom: 0.35rem; }
+    .phase ul { margin: 0; padding-left: 1.25rem; color: #c9d1d9; }
+    .phase li { margin-bottom: 0.25rem; }
+    .links { margin-top: 1rem; font-size: 0.85rem; }
+    .links a { color: #58a6ff; text-decoration: none; }
+    .links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Learning Assistant</h1>
+    <p class="subtitle">Summarize text, ask questions about documents, or generate a learning roadmap.</p>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="summarize">Summarize</button>
+      <button class="tab" data-tab="document-qa">Document QA</button>
+      <button class="tab" data-tab="learning-path">Learning Path</button>
+    </div>
+
+    <!-- Summarize -->
+    <div id="panel-summarize" class="panel active">
+      <div class="card">
+        <label for="summarize-text">Paste text to summarize (under 100 words output)</label>
+        <textarea id="summarize-text" placeholder="Paste a long paragraph or article here..."></textarea>
+        <button class="btn" id="btn-summarize">Summarize</button>
+        <div id="result-summarize" class="result empty"></div>
+      </div>
+    </div>
+
+    <!-- Document QA -->
+    <div id="panel-document-qa" class="panel">
+      <div class="card">
+        <label>Upload a PDF and ask a question</label>
+        <input type="file" id="document-qa-file" accept=".pdf" />
+        <label for="document-qa-question" style="margin-top: 1rem;">Question</label>
+        <input type="text" id="document-qa-question" placeholder="e.g. What is the main conclusion?" />
+        <button class="btn" id="btn-document-qa">Get answer</button>
+        <div id="result-document-qa" class="result empty"></div>
+      </div>
+    </div>
+
+    <!-- Learning Path -->
+    <div id="panel-learning-path" class="panel">
+      <div class="card">
+        <label for="learning-path-topic">Topic for the roadmap</label>
+        <input type="text" id="learning-path-topic" placeholder="e.g. Machine Learning" />
+        <button class="btn" id="btn-learning-path">Generate roadmap</button>
+        <div id="result-learning-path" class="result empty"></div>
+      </div>
+    </div>
+
+    <div class="links">
+      <a href="/docs">API Docs (Swagger)</a> · <a href="/api-info">API info (JSON)</a>
+    </div>
+  </div>
+
+  <script>
+    const base = '';
+
+    // Tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    function showResult(id, text, isError) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.classList.remove('empty', 'error');
+      if (isError) el.classList.add('error');
+      el.style.display = 'block';
+    }
+
+    function formatFetchError(e) {
+      const msg = (e && e.message) ? e.message : String(e);
+      if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror')) {
+        return 'Could not reach the API server. Make sure you:\n1. Start the server: cd server && uvicorn app.main:app --reload\n2. Open this app at http://localhost:8000 (not from a file).';
+      }
+      return msg;
+    }
+
+    function setLoading(btn, loading) {
+      btn.disabled = loading;
+      btn.textContent = loading ? 'Loading…' : (btn.dataset.label || 'Submit');
+    }
+
+    // Summarize
+    const btnSum = document.getElementById('btn-summarize');
+    btnSum.dataset.label = 'Summarize';
+    btnSum.addEventListener('click', async () => {
+      const text = document.getElementById('summarize-text').value.trim();
+      if (!text) { showResult('result-summarize', 'Please enter some text.', true); return; }
+      setLoading(btnSum, true);
+      document.getElementById('result-summarize').classList.add('empty');
+      try {
+        const res = await fetch(base + '/api/summarize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || res.statusText);
+        showResult('result-summarize', data.summary || data);
+      } catch (e) {
+        showResult('result-summarize', 'Error: ' + formatFetchError(e), true);
+      } finally {
+        setLoading(btnSum, false);
+      }
+    });
+
+    // Document QA
+    const btnDoc = document.getElementById('btn-document-qa');
+    btnDoc.dataset.label = 'Get answer';
+    btnDoc.addEventListener('click', async () => {
+      const file = document.getElementById('document-qa-file').files[0];
+      const question = document.getElementById('document-qa-question').value.trim();
+      if (!file) { showResult('result-document-qa', 'Please select a PDF file.', true); return; }
+      if (!question) { showResult('result-document-qa', 'Please enter a question.', true); return; }
+      setLoading(btnDoc, true);
+      document.getElementById('result-document-qa').classList.add('empty');
+      try {
+        const form = new FormData();
+        form.append('document', file);
+        form.append('question', question);
+        const res = await fetch(base + '/api/document-qa', {
+          method: 'POST',
+          body: form
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || res.statusText);
+        showResult('result-document-qa', data.answer || data);
+      } catch (e) {
+        showResult('result-document-qa', 'Error: ' + formatFetchError(e), true);
+      } finally {
+        setLoading(btnDoc, false);
+      }
+    });
+
+    // Learning Path
+    const btnPath = document.getElementById('btn-learning-path');
+    btnPath.dataset.label = 'Generate roadmap';
+    btnPath.addEventListener('click', async () => {
+      const topic = document.getElementById('learning-path-topic').value.trim();
+      if (!topic) { showResult('result-learning-path', 'Please enter a topic.', true); return; }
+      setLoading(btnPath, true);
+      document.getElementById('result-learning-path').classList.add('empty');
+      try {
+        const res = await fetch(base + '/api/learning-path', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || res.statusText);
+        const r = data.roadmap || data;
+        let html = '';
+        if (r.beginner && r.beginner.length) {
+          html += '<div class="phase"><h4>Beginner</h4><ul>';
+          r.beginner.forEach(i => { html += '<li>' + i + '</li>'; });
+          html += '</ul></div>';
+        }
+        if (r.intermediate && r.intermediate.length) {
+          html += '<div class="phase"><h4>Intermediate</h4><ul>';
+          r.intermediate.forEach(i => { html += '<li>' + i + '</li>'; });
+          html += '</ul></div>';
+        }
+        if (r.advanced && r.advanced.length) {
+          html += '<div class="phase"><h4>Advanced</h4><ul>';
+          r.advanced.forEach(i => { html += '<li>' + i + '</li>'; });
+          html += '</ul></div>';
+        }
+        if (r.resources && r.resources.length) {
+          html += '<div class="phase"><h4>Resources</h4><ul>';
+          r.resources.forEach(i => { html += '<li>' + i + '</li>'; });
+          html += '</ul></div>';
+        }
+        if (r.timeline) html += '<p><strong>Timeline:</strong> ' + r.timeline + '</p>';
+        const resultEl = document.getElementById('result-learning-path');
+        resultEl.innerHTML = html || 'No roadmap generated.';
+        resultEl.classList.remove('empty');
+      } catch (e) {
+        showResult('result-learning-path', 'Error: ' + formatFetchError(e), true);
+      } finally {
+        setLoading(btnPath, false);
+      }
+    });
+  </script>
+</body>
+</html>

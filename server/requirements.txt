@@ -1,0 +1,31 @@
+# FastAPI & Server
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+
+# LangChain
+langchain>=0.1.0
+langchain-core>=0.1.0
+langchain-community>=0.0.20
+langchain-openai>=0.0.5
+
+# Document & Embeddings
+pypdf>=4.0.0
+faiss-cpu>=1.7.4
+langchain-text-splitters>=0.0.1
+
+# Environment & Config
+python-dotenv>=1.0.0
+
+# HTTP client for OpenRouter/Ollama
+httpx>=0.26.0
+
+# Optional: OpenAI-compatible (OpenRouter, Ollama)
+openai>=1.12.0
+
+# Google Gemini
+langchain-google-genai>=2.0.0
+
+# Validation
+pydantic>=2.5.0
+pydantic-settings>=2.1.0

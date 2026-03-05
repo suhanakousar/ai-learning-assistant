@@ -1,0 +1,95 @@
+{
+  "info": {
+    "name": "AI Learning Assistant API",
+    "description": "Modular AI microservices: Summarize, Document QA, Learning Path",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Summarize",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"Artificial intelligence (AI) is intelligence demonstrated by machines, as opposed to natural intelligence displayed by animals including humans. Leading AI textbooks define the field as the study of intelligent agents: any device that perceives its environment and takes actions that maximize its chance of achieving its goals. AI research has been defined as the field of study of intelligent agents, which refers to any system that perceives its environment and takes actions that maximize its chance of achieving its goals.\"\n}"
+        },
+        "url": "{{base_url}}/api/summarize",
+        "description": "Summarize long text into a concise summary (under 100 words)."
+      }
+    },
+    {
+      "name": "Document QA",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "document",
+              "type": "file",
+              "src": [],
+              "description": "PDF file"
+            },
+            {
+              "key": "question",
+              "value": "What is the main topic of this document?",
+              "type": "text",
+              "description": "Question about the document"
+            }
+          ]
+        },
+        "url": "{{base_url}}/api/document-qa",
+        "description": "Upload a PDF and ask a question. Answer is based only on document content."
+      }
+    },
+    {
+      "name": "Learning Path",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"topic\": \"Machine Learning\"\n}"
+        },
+        "url": "{{base_url}}/api/learning-path",
+        "description": "Generate a structured learning roadmap (beginner, intermediate, advanced, resources, timeline)."
+      }
+    },
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/health",
+        "description": "Health check."
+      }
+    },
+    {
+      "name": "Root",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/",
+        "description": "API info and list of endpoints."
+      }
+    }
+  ]
+}
